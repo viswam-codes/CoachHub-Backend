@@ -14,4 +14,5 @@ export const UserSchema = new Schema({
     height: { type: Number },
     weight: { type: Number },
     gender: { type: String },
+    refreshToken:{type:String}
 });

@@ -28,6 +28,7 @@ import {
   sendOtpEmail,
 } from '../utils/otp.helper';
 import { RegisterUserDto } from 'src/modules/users/dtos/register-user.dto';
+import { CompleteProfileDto } from 'src/modules/users/dtos/profilecompletion.dto';
 
 @Injectable()
 export class UserService {
@@ -109,8 +110,12 @@ export class UserService {
     const isProfileCompleted = user.isProfileCompleted;
   
     const payload = { id: user.id, email: user.email };
-    const token = await this.tokenService.generateToken(payload); // Use AuthService here
-    return { token , user , isProfileCompleted };
+    const token = await this.tokenService.generateTokens(payload); // Use AuthService here
+    const {accessToken,refreshToken}=token;
+
+    this.userRepository.update(user.id,{refreshToken});
+    
+    return {token:accessToken , user , isProfileCompleted };
   }
   
 
@@ -168,6 +173,8 @@ export class UserService {
     this.logger.log(`OTP verified for user: ${email}`);
     return true;
   }
+
+
   //OTP Resend
   async resendOtp(email: string): Promise<boolean> {
     try {
@@ -202,4 +209,31 @@ export class UserService {
       throw new Error('An unexpected error occurred while resending OTP'); // Wrap unknown errors
     }
   }
+
+//Profile Completion Service 
+
+async completeProfile(profileData:CompleteProfileDto):Promise<User>{
+  const {email,goal,gender,age,height,weight} = profileData;
+
+  const user = await this.userRepository.findByEmail(email);
+  if(!user){
+    this.logger.error(`User not found: ${email}`);
+    throw new BadRequestException("User not found");
+  }
+
+  //Update user profile
+
+  const updateUser = await this.userRepository.update(user.id,{
+    goal,
+    gender,
+    age,
+    height,
+    weight,
+    isProfileCompleted:true,
+  })
+
+  this.logger.log(`Profile updated successfully for user: ${email}`);
+  return updateUser;
+}
+
 }

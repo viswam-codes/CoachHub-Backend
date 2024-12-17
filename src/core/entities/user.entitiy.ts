@@ -13,4 +13,5 @@ export interface User {
     height?: number;
     weight?: number;
     gender?: string;
+    refreshToken?:string;
 }

@@ -11,6 +11,7 @@ import { TOKEN_SERVICE } from 'src/core/interfaces/jwt-token-interface';
 import { InfrastructureModule } from 'src/infrastructure/modules/infrastructure.module';
 import { AuthModule } from 'src/infrastructure/modules/jwt.module';
 import { AuthService } from 'src/infrastructure/services/auth.service';
+import { AuthGuard } from 'src/common/Guard/auth.guard';
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { AuthService } from 'src/infrastructure/services/auth.service';
       useClass:AuthService
 
     },
-    UserService, // Provide UserService
+    UserService,
+    AuthGuard // Provide UserService
   ],
 })
 export class UserModule {}

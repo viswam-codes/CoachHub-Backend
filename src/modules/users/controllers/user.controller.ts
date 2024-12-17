@@ -5,13 +5,18 @@ import {
   BadRequestException,
   Res,
   HttpStatus,
+  UseGuards,
+  Req,
+  Put
 } from '@nestjs/common';
 import { UserService } from 'src/core/services/user.services';
 import { RegisterUserDto } from '../dtos/register-user.dto';
 import { VerifyOtpDto } from '../dtos/otp-verify.dto';
+import { CompleteProfileDto } from '../dtos/profilecompletion.dto';
 import { LoginDto } from '../dtos/login.dto';
 import { Logger } from '@nestjs/common';
 import { Response } from 'express';
+import { AuthGuard } from 'src/common/Guard/auth.guard';
 
 @Controller('users')
 export class UserController {
@@ -65,6 +70,35 @@ export class UserController {
       return { success: result, message: 'OTP has been resent to your email' }; // Return the proper object
     } catch (error) {
       throw new BadRequestException(error.message || 'Failed to resend OTP');
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Put('complete-profile')
+  async completeProfile(
+    @Body() completeProfileDto: CompleteProfileDto,
+    @Req() req: Request & { user?: { email: string; id: string } },
+    @Res() res: Response,
+  ) {
+    try {
+      const user = req.user; // Access attached user details
+      if (!user) {
+        throw new Error('User not found in the request object');
+      }
+
+      const updatedUser = await this.userService.completeProfile({
+        ...completeProfileDto,
+        email: user.email,
+      });
+
+      return res.status(HttpStatus.OK).json({
+        message: 'Profile completed successfully.',
+        user: updatedUser,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: error.message || 'Failed to complete profile',
+      });
     }
   }
 }

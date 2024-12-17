@@ -18,8 +18,8 @@ export class MongoUserRepository implements IUserRepository {
   }
   
 
-  async update(userId: string, updates: Partial<User>): Promise<void> {
+  async update(userId: string, updates: Partial<User>): Promise<User> {
     console.log('Updating user with:', updates );
-    await this.userModel.findByIdAndUpdate(userId, updates,{new:true}).exec();
+   return await this.userModel.findByIdAndUpdate(userId, updates,{new:true}).exec();
   }
 }
