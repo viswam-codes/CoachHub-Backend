@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '../strategies/jwt.strategy'; // Custom strategy
 import { AuthService } from '../services/auth.service';
+import { InfrastructureModule } from './infrastructure.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { AuthService } from '../services/auth.service';
       secret: process.env.JWT_SECRET || 'your-secret-key', // Use env variables for production
       signOptions: { expiresIn: '1h' }, // Token expiration
     }),
+    InfrastructureModule
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService, JwtModule],

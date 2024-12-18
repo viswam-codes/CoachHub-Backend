@@ -22,4 +22,10 @@ export class MongoUserRepository implements IUserRepository {
     console.log('Updating user with:', updates );
    return await this.userModel.findByIdAndUpdate(userId, updates,{new:true}).exec();
   }
+
+  async findById(userId: string): Promise<User | null> {
+    const user = await this.userModel.findById(userId).exec();
+    return user;
+  }
+  
 }

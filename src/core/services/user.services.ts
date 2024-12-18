@@ -25,7 +25,6 @@ import { LoginDto } from 'src/modules/users/dtos/login.dto';
 import {
   generateOTP,
   calculateExpiry,
-  sendOtpEmail,
 } from '../utils/otp.helper';
 import { RegisterUserDto } from 'src/modules/users/dtos/register-user.dto';
 import { CompleteProfileDto } from 'src/modules/users/dtos/profilecompletion.dto';
@@ -92,7 +91,7 @@ export class UserService {
   }
  
   //User Login
-  async login(userData: LoginDto): Promise<{ token: string , user:object , isProfileCompleted:boolean}> {
+  async login(userData: LoginDto): Promise<{ accessToken: string , refreshToken:string, user:object , isProfileCompleted:boolean}> {
     const { email, password } = userData;
     this.logger.log(`User login attempt: ${email}`);
   
@@ -115,7 +114,7 @@ export class UserService {
 
     this.userRepository.update(user.id,{refreshToken});
     
-    return {token:accessToken , user , isProfileCompleted };
+    return {accessToken,refreshToken , user , isProfileCompleted };
   }
   
 
@@ -236,4 +235,7 @@ async completeProfile(profileData:CompleteProfileDto):Promise<User>{
   return updateUser;
 }
 
+async invalidateRefreshToken(userId: string): Promise<void> {
+  await this.userRepository.update(userId, {refreshToken:null}); // Set the refresh token to null
+}
 }
